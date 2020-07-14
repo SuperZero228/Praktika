@@ -1,35 +1,60 @@
 import cv2 as cv
+import numpy as np
+import time
+import os
 
-IMG_PATH = "Images/img1.jpg"
+DIR_PATH = "Images"
+FINAL_DIR = "Finale"
+
 class Scriber():
     KEY_RESET = ord("r")
     KEY_QUIT = ord("q")
     KEY_DELETE = ord("d")
+    KEY_SAVE = ord("s")
+    thicks = []
+    coordinates = []
+    thickness = 1
+    click_count = 0
+    win_name = "Test"
+    img_index = 0
+    img_name = ""
+    img = ""
 
-    def __init__(self, path2image):
-        self.path = path2image
-        self.thickness = 1
-        self.img_name = "Test"
-        self.img = self.resize()
-        self.coordinates = []
-        self.thicks = []
-        self.click_count = 0
+    def __init__(self, path2images, path2finale):
+        self.final_path = path2finale
+        self.path2dir = path2images
+        self.next_img()
+        self.void_img = self.create_void_img()
 
-        cv.namedWindow(self.img_name, cv.WINDOW_GUI_EXPANDED)
-        cv.setMouseCallback(self.img_name, self.__mouse_callback)
+        # cv.namedWindow(self.win_name, cv.WINDOW_GUI_EXPANDED)
+        # cv.setMouseCallback(self.win_name, self.__mouse_callback)
+
+    def next_img(self):
+        files = os.listdir(self.path2dir)
+        if len(files) <= self.img_index:
+            return False
+        else:
+            self.img_name = files[self.img_index]
+            self.img = self.resize()
+            self.img_index += 1
+            return True
+
+
+    def create_void_img(self):
+        img = np.zeros((480, 720))
+        return img
 
     def img_reset(self):
         self.img = self.resize()
 
     def resize(self):
- 
-        img = cv.imread(self.path)
+
+        img = cv.imread(self.path2dir + "/" + self.img_name)
         final_wide = 720
         final_high = 480
         dim = (final_wide, final_high)
         resized = cv.resize(img, dim, interpolation=cv.INTER_AREA)
         return resized
-
 
     def __mouse_callback(self, event, x, y, flags, params):
 
@@ -41,13 +66,13 @@ class Scriber():
             if (self.click_count % 2) == 0:
                 self.__handle_click_progress()
 
-
     def __handle_click_progress(self):
         lenght = len(self.coordinates)
         print(lenght)
         print(self.coordinates)
         i = 0
         while i < lenght:
+            cv.line(self.void_img, self.coordinates[i], self.coordinates[i+1], (255), self.thicks[i])
             cv.line(self.img, self.coordinates[i], self.coordinates[i+1], (0, 0, 255), self.thicks[i])
             i += 2
 
@@ -60,14 +85,27 @@ class Scriber():
         cv.createTrackbar('w', 'settings', 1, 255, nothing)
 
         while True:
+            cv.namedWindow(self.win_name, cv.WINDOW_GUI_EXPANDED)
+            cv.setMouseCallback(self.win_name, self.__mouse_callback)
             self.thickness = cv.getTrackbarPos('w', 'settings')
-            cv.imshow(self.img_name, self.img)
+            cv.imshow("result", self.void_img)
+            cv.imshow(self.win_name, self.img)
             quit = cv.waitKey(113)
             delete = cv.waitKey(100)
+            save = cv.waitKey(115)
             reset = cv.waitKey(114)
 
             if quit == Scriber.KEY_QUIT:
                 break
+
+            if save == Scriber.KEY_SAVE:
+                cv.imwrite(self.final_path + "/Source/" + self.img_name, self.resize())
+                cv.imwrite(self.final_path + "/Marked/" + self.img_name, self.void_img)
+                self.thicks.clear()
+                self.coordinates.clear()
+                self.void_img = self.create_void_img()
+                if (self.next_img() == False):
+                    break
 
             if delete == Scriber.KEY_DELETE:
                 if len(self.coordinates) == 0:
@@ -77,6 +115,7 @@ class Scriber():
                 self.thicks.pop()
                 self.thicks.pop()
                 self.img_reset()
+                self.void_img = self.create_void_img()
                 self.__handle_click_progress()
 
             if reset == Scriber.KEY_RESET:
@@ -85,9 +124,10 @@ class Scriber():
                 self.thicks.clear()
                 self.coordinates.clear()
                 self.img_reset()
+                self.void_img = self.create_void_img()
                 self.__handle_click_progress()
 
 
-
-scriber = Scriber(IMG_PATH)
+scriber = Scriber(DIR_PATH, FINAL_DIR)
+print(1)
 scriber.process()
