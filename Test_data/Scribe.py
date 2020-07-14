@@ -129,5 +129,4 @@ class Scriber():
 
 
 scriber = Scriber(DIR_PATH, FINAL_DIR)
-print(1)
 scriber.process()
