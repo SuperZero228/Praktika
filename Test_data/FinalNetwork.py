@@ -7,6 +7,7 @@ AUTOTUNE = tf.data.experimental.AUTOTUNE
 #Тут нужно закинуть в список имена всех фотографий
 SOURCE_PATH = "Finale/Source/"
 MARKED_PATH = "Finale/Marked/"
+CHECKPOINT_PATH = "Weights/cp.ckpt"
 #all_source_image_paths = os.listdir(SOURCE_PATH)
 direct = os.getcwd()
 all_source_image_paths = [SOURCE_PATH + str(path) for path in os.listdir(SOURCE_PATH)]
@@ -42,7 +43,6 @@ source_image_ds = path_source_ds.map(load_and_preprocess_image, num_parallel_cal
 path_marked_ds = tf.data.Dataset.from_tensor_slices(all_marked_image_paths)
 marked_image_ds = path_marked_ds.map(load_and_preprocess_image,  num_parallel_calls=AUTOTUNE)
 
-#check(marked_image_ds)
 
 final_ds = tf.data.Dataset.zip((source_image_ds, marked_image_ds))
 print(final_ds)
@@ -55,7 +55,7 @@ print(final_ds)
 
 
 
-BATCH_SIZE = 1
+BATCH_SIZE = 5
 
 # Установка размера буфера перемешивания, равного набору данных, гарантирует
 # полное перемешивание данных.
@@ -87,8 +87,23 @@ model.compile(optimizer='adam',
                   metrics=['accuracy'])
 
 
-steps_per_epoch=tf.math.ceil(len(all_source_image_paths)/BATCH_SIZE).numpy()
-print(steps_per_epoch)
+# Распечатаем архитектуру модели
+model.summary()
 
-model.fit(ds, epochs=1000, steps_per_epoch=2, batch_size=1)
-model.evaluate(ds)
+# Создаем коллбек сохраняющий веса модели
+cp_callback = tf.keras.callbacks.ModelCheckpoint(filepath=CHECKPOINT_PATH,
+                                                 save_weights_only=True,
+                                                 verbose=2)
+
+#x_train, y_train = ds
+
+
+
+model.fit(ds, epochs=40, steps_per_epoch=5, callbacks=[cp_callback], batch_size=10)
+model.evaluate(ds, steps=10)
+
+
+# Сохраним всю модель в  HDF5 файл
+model.save('Weights/my_model.h5')
+# Сохраняем веса
+model.save_weights('Weights/check/my_checkpoint_weights')
