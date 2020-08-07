@@ -15,13 +15,9 @@ def load_and_preprocess_image(path):
   return preprocess_image(image)
 
 
-print(tf.train.list_variables('Weights/check/my_checkpoint_weights'))
-
-
-
 model = tf.keras.models.load_model('Weights/my_model.h5')
 print(model.get_weights())
-image = load_and_preprocess_image("Finale/Source/1.jpg")
+image = load_and_preprocess_image("Finale/Source/depositphotos_45038321-stock-photo-empty-parking.jpg")
 # print(image)
 np = np.array([image])
 print(np)
@@ -31,8 +27,7 @@ out += 1
 out /= 2
 out *= 255
 print(out)
-cv.imshow("1", out)
-cv.waitKey()
+
 
 import matplotlib.pyplot as plt
 
