@@ -2,8 +2,8 @@ import cv2 as cv
 import numpy as np
 import os
 
-DIR_PATH = "Images"
-FINAL_DIR = "Finale"
+DIR_PATH = "Source_images"
+FINAL_DIR = "Finale_images"
 
 class Scriber():
     KEY_RESET = ord("r")
@@ -25,9 +25,6 @@ class Scriber():
         self.next_img()
         self.void_img = self.create_void_img()
 
-        # cv.namedWindow(self.win_name, cv.WINDOW_GUI_EXPANDED)
-        # cv.setMouseCallback(self.win_name, self.__mouse_callback)
-
     def next_img(self):
         files = os.listdir(self.path2dir)
         if len(files) <= self.img_index:
@@ -37,7 +34,6 @@ class Scriber():
             self.img = self.resize()
             self.img_index += 1
             return True
-
 
     def create_void_img(self):
         img = np.zeros((480, 720))
@@ -66,11 +62,9 @@ class Scriber():
                 self.__handle_click_progress()
 
     def __handle_click_progress(self):
-        lenght = len(self.coordinates)
-        print(lenght)
-        print(self.coordinates)
+        length = len(self.coordinates)
         i = 0
-        while i < lenght:
+        while i < length:
             cv.line(self.void_img, self.coordinates[i], self.coordinates[i+1], (255), self.thicks[i])
             cv.line(self.img, self.coordinates[i], self.coordinates[i+1], (0, 0, 255), self.thicks[i])
             i += 2
