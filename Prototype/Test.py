@@ -34,7 +34,7 @@ img = cv.imread("Finale_images/Source/iWUNIEB47.jpg")
 
 
 # Use the given image as input, which needs to be blob(s).
-blob = cv.dnn.blobFromImage(img, size=(720, 480), crop=False)
+blob = cv.dnn.blobFromImage(img, scalefactor=(1/255), crop=False)
 model.setInput(blob)
 
 # Runs a forward pass to compute the net output
@@ -42,10 +42,7 @@ out = model.forward()
 
 # Pull photo
 out = out[0][0]
-
-# for vector in out:
-#   print(vector)
-_, thresh = cv.threshold(out, 127, 255, cv.THRESH_BINARY)
+_, thresh = cv.threshold(out, 0.8, 255, cv.THRESH_BINARY)
 cv.imshow("1", out)
 cv.imshow("2", thresh)
 cv.waitKey(0)

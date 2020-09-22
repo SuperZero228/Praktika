@@ -169,7 +169,7 @@ creator = DataSetCreator()
 ds = creator.create_data_set(source=SOURCE_PATH, marked=MARKED_PATH, batch_size=5)
 
 net = Network(name_of_model="TEST")
-net.start_training(data_set=ds, number_of_epochs=300, steps_per_epoch=10)
+net.start_training(data_set=ds, number_of_epochs=2000, steps_per_epoch=10)
 net.save_hdf5_format(path2save='Weights/models_h5/')
 net.save_frozen_graph(path2save='Weights/frozen_models')
 net.save_weights(path2save='Weights/weights')
